@@ -133,6 +133,33 @@ public final class Tuple1<T1> implements Tuple, Serializable {
     }
 
     /**
+     * Apply consumer (function that produce java.lang.Void) for all of tuple elements.
+     *
+     * @param consumer the mapper function
+     * @return current tuple
+     * @throws NullPointerException if {@code mapper} is null
+     */
+    public Tuple1<? super T1> peek(Function<? super T1, Void> consumer) {
+        Objects.requireNonNull(consumer, "consumer is null");
+        consumer.apply(_1);
+        return this;
+    }
+
+    /**
+     * Apply checked consumer (checked function that produce java.lang.Void) for all of tuple elements.
+     *
+     * @param consumer the mapper function
+     * @return current tuple
+     * @throws NullPointerException if {@code mapper} is null
+     * @throws Throwable rethrow {@code consumer} throws
+     */
+    public Tuple1<? super T1> tap(CheckedFunction1<? super T1, Void> consumer) throws Throwable{
+        Objects.requireNonNull(consumer, "consumer is null");
+        consumer.apply(_1);
+        return this;
+    }
+
+    /**
      * Transforms this tuple to an object of type U.
      *
      * @param f Transformation which creates a new object of type U based on this tuple's contents.

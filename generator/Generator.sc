@@ -1946,6 +1946,8 @@ def generateMainClasses(): Unit = {
         case 2 => im.getType("java.util.function.BiFunction")
         case _ => s"Function$i"
       }
+      val checkedFunctionType = s"CheckedFunction$i"
+
       val Comparator = im.getType("java.util.Comparator")
       val Objects = im.getType("java.util.Objects")
       val Seq = im.getType("io.vavr.collection.Seq")
@@ -2120,6 +2122,44 @@ def generateMainClasses(): Unit = {
                   }
               }
             """)}
+
+            ${(i > 0).gen(xs"""
+              /$javadoc
+               * Apply consumer (function that produce java.lang.Void) for all of tuple elements.
+               *
+               * @param consumer the mapper function
+               * @return current tuple
+               * @throws NullPointerException if {@code mapper} is null
+               */
+              public Tuple$i<$paramTypes> peek($functionType<$paramTypes, Void> consumer) {
+                  Objects.requireNonNull(consumer, "consumer is null");
+                  ${if (i == 1)
+                    "consumer.apply(_1);"
+                  else
+                    s"consumer.apply($params);"
+                  }
+                  return this;
+              }
+
+              /$javadoc
+               * Apply checked consumer (checked function that produce java.lang.Void) for all of tuple elements.
+               *
+               * @param consumer the mapper function
+               * @return current tuple
+               * @throws NullPointerException if {@code mapper} is null
+               * @throws Throwable rethrow {@code consumer} throws
+               */
+              public Tuple$i<$paramTypes> tap($checkedFunctionType<$paramTypes, Void> consumer) throws Throwable{
+                  Objects.requireNonNull(consumer, "consumer is null");
+                  ${if (i == 1)
+                    "consumer.apply(_1);"
+                  else
+                    s"consumer.apply($params);"
+                  }
+                  return this;
+              }
+            """)}
+
 
             ${(i > 1).gen(xs"""
               /$javadoc

@@ -368,6 +368,33 @@ public final class Tuple6<T1, T2, T3, T4, T5, T6> implements Tuple, Serializable
     }
 
     /**
+     * Apply consumer (function that produce java.lang.Void) for all of tuple elements.
+     *
+     * @param consumer the mapper function
+     * @return current tuple
+     * @throws NullPointerException if {@code mapper} is null
+     */
+    public Tuple6<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6> peek(Function6<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, Void> consumer) {
+        Objects.requireNonNull(consumer, "consumer is null");
+        consumer.apply(_1, _2, _3, _4, _5, _6);
+        return this;
+    }
+
+    /**
+     * Apply checked consumer (checked function that produce java.lang.Void) for all of tuple elements.
+     *
+     * @param consumer the mapper function
+     * @return current tuple
+     * @throws NullPointerException if {@code mapper} is null
+     * @throws Throwable rethrow {@code consumer} throws
+     */
+    public Tuple6<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6> tap(CheckedFunction6<? super T1, ? super T2, ? super T3, ? super T4, ? super T5, ? super T6, Void> consumer) throws Throwable{
+        Objects.requireNonNull(consumer, "consumer is null");
+        consumer.apply(_1, _2, _3, _4, _5, _6);
+        return this;
+    }
+
+    /**
      * Maps the components of this tuple using a mapper function for each component.
      *
      * @param f1 the mapper function of the 1st component
