@@ -38,6 +38,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -221,9 +222,11 @@ public interface CheckedFunction2<T1, T2, R> extends Serializable {
             return this;
         } else {
             final Map<Tuple2<T1, T2>, R> cache = new HashMap<>();
+            final ReentrantLock lock = new ReentrantLock();
             return (CheckedFunction2<T1, T2, R> & Memoized) (t1, t2) -> {
                 final Tuple2<T1, T2> key = Tuple.of(t1, t2);
-                synchronized (cache) {
+                lock.lock();
+                try {
                     if (cache.containsKey(key)) {
                         return cache.get(key);
                     } else {
@@ -231,6 +234,8 @@ public interface CheckedFunction2<T1, T2, R> extends Serializable {
                         cache.put(key, value);
                         return value;
                     }
+                } finally {
+                    lock.unlock();
                 }
             };
         }

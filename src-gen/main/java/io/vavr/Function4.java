@@ -36,6 +36,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 
 /**
@@ -255,9 +256,11 @@ public interface Function4<T1, T2, T3, T4, R> extends Serializable {
             return this;
         } else {
             final Map<Tuple4<T1, T2, T3, T4>, R> cache = new HashMap<>();
+            final ReentrantLock lock = new ReentrantLock();
             return (Function4<T1, T2, T3, T4, R> & Memoized) (t1, t2, t3, t4) -> {
                 final Tuple4<T1, T2, T3, T4> key = Tuple.of(t1, t2, t3, t4);
-                synchronized (cache) {
+                lock.lock();
+                try {
                     if (cache.containsKey(key)) {
                         return cache.get(key);
                     } else {
@@ -265,6 +268,8 @@ public interface Function4<T1, T2, T3, T4, R> extends Serializable {
                         cache.put(key, value);
                         return value;
                     }
+                } finally {
+                    lock.unlock();
                 }
             };
         }

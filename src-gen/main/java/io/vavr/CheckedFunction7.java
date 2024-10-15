@@ -38,6 +38,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 
 /**
@@ -320,9 +321,11 @@ public interface CheckedFunction7<T1, T2, T3, T4, T5, T6, T7, R> extends Seriali
             return this;
         } else {
             final Map<Tuple7<T1, T2, T3, T4, T5, T6, T7>, R> cache = new HashMap<>();
+            final ReentrantLock lock = new ReentrantLock();
             return (CheckedFunction7<T1, T2, T3, T4, T5, T6, T7, R> & Memoized) (t1, t2, t3, t4, t5, t6, t7) -> {
                 final Tuple7<T1, T2, T3, T4, T5, T6, T7> key = Tuple.of(t1, t2, t3, t4, t5, t6, t7);
-                synchronized (cache) {
+                lock.lock();
+                try {
                     if (cache.containsKey(key)) {
                         return cache.get(key);
                     } else {
@@ -330,6 +333,8 @@ public interface CheckedFunction7<T1, T2, T3, T4, T5, T6, T7, R> extends Seriali
                         cache.put(key, value);
                         return value;
                     }
+                } finally {
+                    lock.unlock();
                 }
             };
         }
